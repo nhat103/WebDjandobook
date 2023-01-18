@@ -1,22 +1,18 @@
-import os
-from django.conf import settings
 from django.shortcuts import render
 from .forms import UploadForm
-from PIL import Image
+from .models import ExampleModel
 
 
 def media_example(request):
+    instance = None
     if request.method == "POST":
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
-            save_path = os.path.join(
-                settings.MEDIA_ROOT, form.cleaned_data["file_upload"].name)
-            with open(save_path, "wb") as output_file:
-                for file in form.cleaned_data["file_upload"]:
-                    output_file.write(file)
-
+            instance = ExampleModel
+            instance.image_field = form.cleaned_data["image_upload"]
+            instance.file_field = form.cleaned_data["file_upload"]
     else:
         form = UploadForm()
 
-    context = {"form": form}
+    context = {"form": form, "instance": instance}
     return render(request, "media-example.html", context)
